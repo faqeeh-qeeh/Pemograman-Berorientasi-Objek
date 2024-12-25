@@ -39,5 +39,22 @@ class Produk {
         $this->deskripsi = $row["deskripsi"];
     }
 
+    public function create() {
+        $query = "INSERT INTO {$this->tableName} SET nama_produk = :namaproduk, harga_jual = :hargajual, harga_beli = :hargabeli, stok = :stok, deskripsi = :deskripsi";
+
+        $statement = $this->connection->prepare($query);
+
+        $statement->bindParam(":namaproduk", $this->namaproduk);
+        $statement->bindParam(":hargajual", $this->hargajual);
+        $statement->bindParam(":hargabeli", $this->hargabeli);
+        $statement->bindParam(":stok", $this->stok);
+        $statement->bindParam(":deskripsi", $this->deskripsi);
+        
+        if ($statement->execute()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 }
