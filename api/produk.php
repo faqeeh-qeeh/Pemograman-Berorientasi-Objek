@@ -12,7 +12,7 @@ require_once "../model/ProdukSpesifik/ProdukDigital.php";
 
 $database = new Database();
 $db = $database->getConnection();
-
+$database->createTables();
 $request = $_SERVER['REQUEST_METHOD'];
 
 function sendResponse($code, $response) {
