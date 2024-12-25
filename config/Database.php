@@ -65,5 +65,23 @@ class Database {
         } catch (PDOException $e) {  
             echo "Error: " . $e->getMessage();  
         }  
+    }
+    public function updateTables($id, $data) {  
+        $query = "UPDATE produk SET   
+                        nama_produk = :nama_produk,   
+                        harga_jual = :harga_jual,   
+                        harga_beli = :harga_beli,   
+                        stok = :stok,   
+                        deskripsi = :deskripsi,   
+                        kategori = :kategori   
+                      WHERE id = :id";  
+    
+        $statement = $this->connection->prepare($query);  
+    
+
+        if ($statement->execute()) {  
+            return true;  
+        }  
+        return false;  
     }  
-}
+}  

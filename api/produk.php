@@ -13,12 +13,14 @@ require_once "../model/ProdukSpesifik/ProdukDigital.php";
 $database = new Database();
 $db = $database->getConnection();
 $database->createTables();
+$database->updateTables($id, $data);
 $request = $_SERVER['REQUEST_METHOD'];
 
 function sendResponse($code, $response) {
     http_response_code($code);
     echo json_encode($response);
 }
+
 
 switch ($request) {
     case 'GET':
@@ -102,6 +104,18 @@ switch ($request) {
         } else {
             sendResponse(400, ["status" => "error", "message" => "Data tidak lengkap."]);
         }
+        break;
+    
+        case 'PUT':
+            $id = $_GET['id'];  // Ambil ID dari parameter URL  
+            $data = json_decode(file_get_contents("php://input"), true);  // Ambil data JSON dari body permintaan  
+
+            if ($database->updateTables($id, $data)) {  
+                echo json_encode(["message" => "Produk berhasil diperbarui."]);  
+            } else {  
+            echo json_encode(["message" => "Gagal memperbarui produk."]);  
+            }  
+
         break;
 
     default:
