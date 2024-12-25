@@ -6,11 +6,12 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 
 require_once "../config/Database.php";
 require_once "../model/Produk.php";
+require_once "../model/ProdukSpesifik/ProdukAlatTulis.php";
+require_once "../model/ProdukSpesifik/ProdukJasa.php";
+require_once "../model/ProdukSpesifik/ProdukDigital.php";
 
 $database = new Database();
 $db = $database->getConnection();
-
-$produk = new Produk($db);
 
 $request = $_SERVER['REQUEST_METHOD'];
 
@@ -22,6 +23,7 @@ function sendResponse($code, $response) {
 switch ($request) {
     case 'GET':
         if (empty($_GET['id'])) {
+            $produk = new Produk($db);
             $statement = $produk->read();
             $num = $statement->rowCount();
             $listProduk = array("records" => array());
@@ -44,6 +46,7 @@ switch ($request) {
                 sendResponse(404, ["message" => "Produk tidak ditemukan."]);
             }
         } else {
+            $produk = new Produk($db);
             $produk->id = $_GET['id'];
             $produk->readById();
             if (!empty($produk->nama_produk)) {
@@ -70,8 +73,21 @@ switch ($request) {
             isset($data['harga_jual']) &&
             isset($data['harga_beli']) &&
             isset($data['stok']) &&
-            isset($data['deskripsi'])
+            isset($data['deskripsi']) &&
+            isset($data['kategori'])
         ) {
+            $kategori = $data['kategori'];
+            if ($kategori === "Alat Tulis") {
+                $produk = new ProdukAlatTulis($db);
+            } elseif ($kategori === "Jasa") {
+                $produk = new ProdukJasa($db);
+            } elseif ($kategori === "Digital") {
+                $produk = new ProdukDigital($db, $data['formatFile'] ?? '', $data['kapasitas'] ?? 0);
+            } else {
+                sendResponse(400, ["status" => "error", "message" => "Kategori tidak valid."]);
+                return;
+            }
+
             $produk->nama_produk = $data['nama_produk'];
             $produk->harga_jual = $data['harga_jual'];
             $produk->harga_beli = $data['harga_beli'];
@@ -84,7 +100,7 @@ switch ($request) {
                 sendResponse(500, ["status" => "error", "message" => "Gagal menambahkan produk."]);
             }
         } else {
-            sendResponse(400, ["status" => "error", "message" => "Data tidak lengkap"]);
+            sendResponse(400, ["status" => "error", "message" => "Data tidak lengkap."]);
         }
         break;
 

@@ -23,3 +23,13 @@ class Database {
         return $this->connection;
     }
 }
+
+
+// CREATE TABLE produk (
+//     id INT AUTO_INCREMENT PRIMARY KEY,
+//     nama_produk VARCHAR(255) NOT NULL,
+//     harga_jual INT NOT NULL,
+//     harga_beli INT NOT NULL,
+//     stok INT NOT NULL,
+//     deskripsi TEXT
+// );

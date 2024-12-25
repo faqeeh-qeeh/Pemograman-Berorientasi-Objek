@@ -1,7 +1,7 @@
 <?php
 class Produk {
-    private $connection;
-    private $tableName = "produk";
+    protected $connection;
+    protected $tableName = "produk";
 
     public $id;
     public $nama_produk;
