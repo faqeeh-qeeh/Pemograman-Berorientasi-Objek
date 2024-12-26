@@ -4,6 +4,7 @@ require_once "BaseProduk.php";
 require_once "Supplier.php";   
 require_once "ProdukInterface.php"; 
 require_once "SupplierManagementInterface.php"; 
+require_once "../exceptions/FileNotFoundException.php";
 
 class Produk extends BaseProduk implements ProdukInterface, SupplierManagementInterface {  
     public $suppliers = [];  
@@ -50,6 +51,18 @@ class Produk extends BaseProduk implements ProdukInterface, SupplierManagementIn
         $statement->bindParam(":deskripsi", $this->deskripsi);  
 
         return $statement->execute();  
+    }  
+
+        // Metode baru untuk membaca data dari file  
+    public function readFromFile($filePath) {  
+        if (!file_exists($filePath)) {  
+            throw new FileNotFoundException("File '{$filePath}' tidak ditemukan.");  
+        }  
+        
+        // Jika file ditemukan, lakukan proses baca  
+        $data = file_get_contents($filePath);  
+        // Lakukan proses lebih lanjut dengan data di sini  
+        return $data;  
     }  
     
     
