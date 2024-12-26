@@ -1,5 +1,5 @@
 <?php  
-class VA {  
+abstract class VA {  
     protected $nomorVA;  
     protected $penggunaan;  
 
