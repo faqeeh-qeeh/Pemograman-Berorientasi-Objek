@@ -12,8 +12,6 @@ require_once "../model/ProdukSpesifik/ProdukDigital.php";
 
 $database = new Database();
 $db = $database->getConnection();
-$database->createTables();
-$database->updateTables($id, $data);
 $request = $_SERVER['REQUEST_METHOD'];
 
 function sendResponse($code, $response) {
@@ -21,6 +19,9 @@ function sendResponse($code, $response) {
     echo json_encode($response);
 }
 
+function validateId($id) {
+    return filter_var($id, FILTER_VALIDATE_INT, ["options" => ["min_range" => 1]]);
+}
 
 switch ($request) {
     case 'GET':
@@ -28,39 +29,36 @@ switch ($request) {
             $produk = new Produk($db);
             $statement = $produk->read();
             $num = $statement->rowCount();
-            $listProduk = array("records" => array());
+            $listProduk = ["records" => []];
 
             if ($num > 0) {
                 while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
-                    extract($row);
-                    $itemProduk = array(
-                        "id" => $id,
-                        "nama_produk" => $nama_produk,
-                        "harga_jual" => $harga_jual,
-                        "harga_beli" => $harga_beli,
-                        "stok" => $stok,
-                        "deskripsi" => $deskripsi
-                    );
-                    array_push($listProduk["records"], $itemProduk);
+                    $listProduk["records"][] = $row;
                 }
                 sendResponse(200, $listProduk);
             } else {
                 sendResponse(404, ["message" => "Produk tidak ditemukan."]);
             }
         } else {
+            $id = $_GET['id'];
+            if (!validateId($id)) {
+                sendResponse(400, ["message" => "ID tidak valid."]);
+                break;
+            }
+
             $produk = new Produk($db);
-            $produk->id = $_GET['id'];
+            $produk->id = $id;
             $produk->readById();
+
             if (!empty($produk->nama_produk)) {
-                $itemProduk = array(
+                sendResponse(200, [
                     "id" => $produk->id,
                     "nama_produk" => $produk->nama_produk,
                     "harga_jual" => $produk->harga_jual,
                     "harga_beli" => $produk->harga_beli,
                     "stok" => $produk->stok,
                     "deskripsi" => $produk->deskripsi
-                );
-                sendResponse(200, $itemProduk);
+                ]);
             } else {
                 sendResponse(404, ["message" => "Produk tidak ditemukan."]);
             }
@@ -71,52 +69,49 @@ switch ($request) {
         $data = json_decode(file_get_contents("php://input"), true);
 
         if (
-            isset($data['nama_produk']) &&
-            isset($data['harga_jual']) &&
-            isset($data['harga_beli']) &&
-            isset($data['stok']) &&
-            isset($data['deskripsi']) &&
-            isset($data['kategori'])
+            !isset($data['nama_produk'], $data['harga_jual'], $data['harga_beli'], $data['stok'], $data['deskripsi'], $data['kategori'])
         ) {
-            $kategori = $data['kategori'];
-            if ($kategori === "Alat Tulis") {
-                $produk = new ProdukAlatTulis($db);
-            } elseif ($kategori === "Jasa") {
-                $produk = new ProdukJasa($db);
-            } elseif ($kategori === "Digital") {
-                $produk = new ProdukDigital($db, $data['formatFile'] ?? '', $data['kapasitas'] ?? 0);
-            } else {
-                sendResponse(400, ["status" => "error", "message" => "Kategori tidak valid."]);
-                return;
-            }
-
-            $produk->nama_produk = $data['nama_produk'];
-            $produk->harga_jual = $data['harga_jual'];
-            $produk->harga_beli = $data['harga_beli'];
-            $produk->stok = $data['stok'];
-            $produk->deskripsi = $data['deskripsi'];
-
-            if ($produk->create()) {
-                sendResponse(201, ["status" => "success", "message" => "Produk berhasil ditambahkan."]);
-            } else {
-                sendResponse(500, ["status" => "error", "message" => "Gagal menambahkan produk."]);
-            }
-        } else {
             sendResponse(400, ["status" => "error", "message" => "Data tidak lengkap."]);
+            break;
+        }
+
+        $kategori = $data['kategori'];
+        $produk = null;
+
+        if ($kategori === "Alat Tulis") {
+            $produk = new ProdukAlatTulis($db);
+        } elseif ($kategori === "Jasa") {
+            $produk = new ProdukJasa($db);
+        } elseif ($kategori === "Digital") {
+            $produk = new ProdukDigital($db, $data['formatFile'] ?? '', $data['kapasitas'] ?? 0);
+        } else {
+            sendResponse(400, ["status" => "error", "message" => "Kategori tidak valid."]);
+            break;
+        }
+
+        $produk->nama_produk = $data['nama_produk'];
+        $produk->harga_jual = $data['harga_jual'];
+        $produk->harga_beli = $data['harga_beli'];
+        $produk->stok = $data['stok'];
+        $produk->deskripsi = $data['deskripsi'];
+
+        if ($produk->create()) {
+            sendResponse(201, ["status" => "success", "message" => "Produk berhasil ditambahkan."]);
+        } else {
+            sendResponse(500, ["status" => "error", "message" => "Gagal menambahkan produk."]);
         }
         break;
-    
-        case 'PUT':
-            $id = $_GET['id'];  // Ambil ID dari parameter URL  
-            $data = json_decode(file_get_contents("php://input"), true);  // Ambil data JSON dari body permintaan  
 
-            if ($database->updateTables($id, $data)) {  
-                echo json_encode(["message" => "Produk berhasil diperbarui."]);  
-            } else {  
-            echo json_encode(["message" => "Gagal memperbarui produk."]);  
-            }  
 
-        break;
+    case 'PUT':
+        $id = $_GET['id'];  // Ambil ID dari parameter URL  
+        $data = json_decode(file_get_contents("php://input"), true);  // Ambil data JSON dari body permintaan  
+        if ($database->updateTables($id, $data)) {  
+            echo json_encode(["message" => "Produk berhasil diperbarui."]);  
+        } else {  
+        echo json_encode(["message" => "Gagal memperbarui produk."]);  
+        }  
+    break;
 
     default:
         sendResponse(405, ["message" => "Method not allowed."]);

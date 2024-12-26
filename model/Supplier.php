@@ -6,7 +6,10 @@ class Supplier {
     public $nama;  
     public $kontak;  
 
-    public function __construct($id, $nama, $kontak) {  
+    public function __construct(int $id, string $nama, string $kontak) {  
+        if ($id <= 0) {
+            throw new InvalidArgumentException("ID harus berupa angka positif.");
+        }
         $this->id = $id;  
         $this->nama = $nama;  
         $this->kontak = $kontak;  
@@ -19,4 +22,12 @@ class Supplier {
             'kontak' => $this->kontak  
         ];  
     }  
+
+    public static function fromArray(array $data): self {
+        return new self(
+            $data['id'] ?? 0, 
+            $data['nama'] ?? '', 
+            $data['kontak'] ?? ''
+        );
+    }
 }

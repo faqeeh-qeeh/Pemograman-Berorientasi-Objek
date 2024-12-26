@@ -1,68 +1,57 @@
-<?php
+<?php  
 
-require_once "Supplier.php"; 
+require_once "BaseProduk.php";   
+require_once "Supplier.php";   
 
-class Produk {
-    protected $connection;
-    protected $tableName = "produk";
+class Produk extends BaseProduk {  
+    public $suppliers = [];  
 
-    public $id;
-    public $nama_produk;
-    public $harga_jual;
-    public $harga_beli;
-    public $stok;
-    public $deskripsi;
-    public $suppliers = [];
-
-    public function __construct($database) {
-        $this->connection = $database;
-    }
-    public function addSupplier(Supplier $supplier) {  
-        $this->suppliers[] = $supplier;
+    public function addSupplier(Supplier $supplier): void {  
+        $this->suppliers[] = $supplier;  
     }  
 
     public function getSuppliers(): array {  
-        return $this->suppliers;
-    }
+        return $this->suppliers;  
+    }  
 
-    public function read(): PDOStatement {
-        $query = "SELECT * FROM {$this->tableName} ORDER BY id ASC";
-        $statement = $this->connection->prepare($query);
-        $statement->execute();
-        return $statement;
-    }
+    public function read(): PDOStatement {  
+        $query = "SELECT * FROM {$this->tableName} ORDER BY id ASC";  
+        $statement = $this->connection->prepare($query);  
+        $statement->execute();  
+        return $statement;  
+    }  
 
-    public function readById(): void {
-        $query = "SELECT * FROM {$this->tableName} WHERE id = ?";
-        $statement = $this->connection->prepare($query);
-        $statement->bindParam(1, $this->id);
-        $statement->execute();
-        $row = $statement->fetch(PDO::FETCH_ASSOC);
+    public function readById(): void {  
+        $query = "SELECT * FROM {$this->tableName} WHERE id = ?";  
+        $statement = $this->connection->prepare($query);  
+        $statement->bindParam(1, $this->id);  
+        $statement->execute();  
+        $row = $statement->fetch(PDO::FETCH_ASSOC);  
 
-        if ($row) {
-            $this->nama_produk = $row["nama_produk"];
-            $this->harga_jual = $row["harga_jual"];
-            $this->harga_beli = $row["harga_beli"];
-            $this->stok = $row["stok"];
-            $this->deskripsi = $row["deskripsi"];
-        }
-    }
+        if ($row) {  
+            $this->nama_produk = $row["nama_produk"];  
+            $this->harga_jual = $row["harga_jual"];  
+            $this->harga_beli = $row["harga_beli"];  
+            $this->stok = $row["stok"];  
+            $this->deskripsi = $row["deskripsi"];  
+        }  
+    }  
 
-    public function create(): bool {
-        $query = "INSERT INTO {$this->tableName} (nama_produk, harga_jual, harga_beli, stok, deskripsi) VALUES (:nama_produk, :harga_jual, :harga_beli, :stok, :deskripsi)";
-        $statement = $this->connection->prepare($query);
+    public function create(): bool {  
+        $query = "INSERT INTO {$this->tableName} (nama_produk, harga_jual, harga_beli, stok, deskripsi) VALUES (:nama_produk, :harga_jual, :harga_beli, :stok, :deskripsi)";  
+        $statement = $this->connection->prepare($query);  
 
-        $statement->bindParam(":nama_produk", $this->nama_produk);
-        $statement->bindParam(":harga_jual", $this->harga_jual);
-        $statement->bindParam(":harga_beli", $this->harga_beli);
-        $statement->bindParam(":stok", $this->stok);
-        $statement->bindParam(":deskripsi", $this->deskripsi);
+        $statement->bindParam(":nama_produk", $this->nama_produk);  
+        $statement->bindParam(":harga_jual", $this->harga_jual);  
+        $statement->bindParam(":harga_beli", $this->harga_beli);  
+        $statement->bindParam(":stok", $this->stok);  
+        $statement->bindParam(":deskripsi", $this->deskripsi);  
 
-        return $statement->execute();
+        return $statement->execute();  
+    }  
     
-    }
-
-    // public function update(): bool{
+    
+        // public function update(): bool{
     //     $query = "UPDATE {$this->tableName} (nama_produk, harga_jual, harga_beli, stok, deskripsi) VALUES (:nama_produk, :harga_jual, :harga_beli, :stok, :deskripsi)";
     //     $statement = $this->connection->prepare($query);
 
@@ -74,5 +63,5 @@ class Produk {
 
     //     return $statement->execute();
     
-    // }
+    // } 
 }

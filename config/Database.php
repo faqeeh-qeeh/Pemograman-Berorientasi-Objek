@@ -4,21 +4,22 @@ class Database {
     private $databaseName = "FotoCopy_PBO";  
     private $userName = "root";  
     private $password = "";  
-    public $connection;  
+    private $connection;  
 
     public function getConnection() {  
-        $this->connection = null;  
-        try {  
-            $this->connection = new PDO(  
-                "mysql:host={$this->host};dbname={$this->databaseName}",  
-                $this->userName,  
-                $this->password  
-            );  
-            $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);  
-            $this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);  
-        } catch (PDOException $exception) {  
-            error_log("Database Connection Error: " . $exception->getMessage());  
-            throw new Exception("Database connection failed");  
+        if ($this->connection === null) {  
+            try {  
+                $this->connection = new PDO(  
+                    "mysql:host={$this->host};dbname={$this->databaseName}",  
+                    $this->userName,  
+                    $this->password  
+                );  
+                $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);  
+                $this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);  
+            } catch (PDOException $exception) {  
+                error_log("Database Connection Error: " . $exception->getMessage());  
+                throw new Exception("Database connection failed");  
+            }  
         }  
         return $this->connection;  
     }  
@@ -58,30 +59,43 @@ class Database {
             );  
         ";  
 
-        // Menggunakan try-catch untuk menangani kesalahan saat menjalankan query  
         try {  
             $this->connection->exec($query);  
-            echo "Tabel berhasil dibuat atau sudah ada.";  
+            error_log("Tables created or already exist.");  
         } catch (PDOException $e) {  
-            echo "Error: " . $e->getMessage();  
+            error_log("Table Creation Error: " . $e->getMessage());  
         }  
-    }
+    }  
+
     public function updateTables($id, $data) {  
         $query = "UPDATE produk SET   
-                        nama_produk = :nama_produk,   
-                        harga_jual = :harga_jual,   
-                        harga_beli = :harga_beli,   
-                        stok = :stok,   
-                        deskripsi = :deskripsi,   
-                        kategori = :kategori   
-                      WHERE id = :id";  
-    
-        $statement = $this->connection->prepare($query);  
-    
+                    nama_produk = :nama_produk,   
+                    harga_jual = :harga_jual,   
+                    harga_beli = :harga_beli,   
+                    stok = :stok,   
+                    deskripsi = :deskripsi,   
+                    kategori = :kategori   
+                  WHERE id = :id";  
 
-        if ($statement->execute()) {  
-            return true;  
+        try {  
+            $statement = $this->connection->prepare($query);  
+
+            // Bind data
+            $statement->bindParam(":id", $id, PDO::PARAM_INT);  
+            $statement->bindParam(":nama_produk", $data['nama_produk'], PDO::PARAM_STR);  
+            $statement->bindParam(":harga_jual", $data['harga_jual'], PDO::PARAM_STR);  
+            $statement->bindParam(":harga_beli", $data['harga_beli'], PDO::PARAM_STR);  
+            $statement->bindParam(":stok", $data['stok'], PDO::PARAM_INT);  
+            $statement->bindParam(":deskripsi", $data['deskripsi'], PDO::PARAM_STR);  
+            $statement->bindParam(":kategori", $data['kategori'], PDO::PARAM_STR);  
+
+            if ($statement->execute()) {  
+                return true;  
+            }  
+        } catch (PDOException $e) {  
+            error_log("Update Error: " . $e->getMessage());  
         }  
+
         return false;  
     }  
-}  
+}
