@@ -19,6 +19,8 @@ function sendResponse($code, $response) {
     echo json_encode($response);
 }
 
+
+
 function validateId($id) {
     return filter_var($id, FILTER_VALIDATE_INT, ["options" => ["min_range" => 1]]);
 }

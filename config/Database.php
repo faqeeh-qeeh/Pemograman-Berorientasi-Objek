@@ -1,27 +1,23 @@
 <?php  
 class Database {  
     private $host = "localhost";  
-    private $databaseName = "FotoCopy_PBO";  
+    private $databaseName = "tugas_pbo";  
     private $userName = "root";  
     private $password = "";  
     private $connection;  
 
     public function getConnection() {  
-        if ($this->connection === null) {  
-            try {  
-                $this->connection = new PDO(  
-                    "mysql:host={$this->host};dbname={$this->databaseName}",  
-                    $this->userName,  
-                    $this->password  
-                );  
-                $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);  
-                $this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);  
-            } catch (PDOException $exception) {  
-                error_log("Database Connection Error: " . $exception->getMessage());  
-                throw new Exception("Database connection failed");  
-            }  
+        $this->connection = null;  
+
+        try {  
+            $this->connection = new PDO("mysql:host=" . $this->host . ";dbname=" . $this->databaseName, $this->userName, $this->password);  
+            $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);  
+            $this->createTables(); // Membuat tabel jika belum ada  
+        } catch (PDOException $exception) {  
+            echo "Connection error: " . $exception->getMessage();  
         }  
-        return $this->connection;  
+
+        return $this->connection;
     }  
 
     public function createTables() {  
