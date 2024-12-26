@@ -1,4 +1,7 @@
 <?php
+
+require_once "Supplier.php"; 
+
 class Produk {
     protected $connection;
     protected $tableName = "produk";
@@ -9,9 +12,17 @@ class Produk {
     public $harga_beli;
     public $stok;
     public $deskripsi;
+    public $suppliers = [];
 
     public function __construct($database) {
         $this->connection = $database;
+    }
+    public function addSupplier(Supplier $supplier) {  
+        $this->suppliers[] = $supplier;
+    }  
+
+    public function getSuppliers(): array {  
+        return $this->suppliers;
     }
 
     public function read(): PDOStatement {
