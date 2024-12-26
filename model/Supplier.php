@@ -1,4 +1,6 @@
 <?php  
+
+// CLASS DIAGRAM RELATIONSHIPS: Association
 class Supplier {  
     public $id;  
     public $nama;  
