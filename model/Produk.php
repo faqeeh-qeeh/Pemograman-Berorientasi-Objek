@@ -66,17 +66,27 @@ class Produk extends BaseProduk implements ProdukInterface, SupplierManagementIn
     }  
     
     
-        // public function update(): bool{
-    //     $query = "UPDATE {$this->tableName} (nama_produk, harga_jual, harga_beli, stok, deskripsi) VALUES (:nama_produk, :harga_jual, :harga_beli, :stok, :deskripsi)";
-    //     $statement = $this->connection->prepare($query);
-
-    //     $statement->bindParam(":nama_produk", $this->nama_produk);
-    //     $statement->bindParam(":harga_jual", $this->harga_jual);
-    //     $statement->bindParam(":harga_beli", $this->harga_beli);
-    //     $statement->bindParam(":stok", $this->stok);
-    //     $statement->bindParam(":deskripsi", $this->deskripsi);
-
-    //     return $statement->execute();
+    public function update(): bool {  
+        // Pastikan untuk menggunakan UPDATE dan SET  
+        $query = "UPDATE {$this->tableName}   
+                  SET nama_produk = :nama_produk,  
+                      harga_jual = :harga_jual,  
+                      harga_beli = :harga_beli,  
+                      stok = :stok,  
+                      deskripsi = :deskripsi   
+                  WHERE id = :id";  
     
-    // } 
+        $statement = $this->connection->prepare($query);  
+    
+        // Binding parameter  
+        $statement->bindParam(":nama_produk", $this->nama_produk);  
+        $statement->bindParam(":harga_jual", $this->harga_jual);  
+        $statement->bindParam(":harga_beli", $this->harga_beli);  
+        $statement->bindParam(":stok", $this->stok);  
+        $statement->bindParam(":deskripsi", $this->deskripsi);  
+        $statement->bindParam(":id", $this->id); // Mengikat id yang sesuai  
+    
+        // Eksekusi query  
+        return $statement->execute();  
+    }  
 }

@@ -67,35 +67,29 @@ class Database {
         }  
     }  
 
-    public function updateTables($id, $data) {  
-        $query = "UPDATE produk SET   
-                    nama_produk = :nama_produk,   
-                    harga_jual = :harga_jual,   
-                    harga_beli = :harga_beli,   
-                    stok = :stok,   
-                    deskripsi = :deskripsi,   
-                    kategori = :kategori   
-                  WHERE id = :id";  
-
-        try {  
-            $statement = $this->connection->prepare($query);  
-
-            // Bind data
-            $statement->bindParam(":id", $id, PDO::PARAM_INT);  
-            $statement->bindParam(":nama_produk", $data['nama_produk'], PDO::PARAM_STR);  
-            $statement->bindParam(":harga_jual", $data['harga_jual'], PDO::PARAM_STR);  
-            $statement->bindParam(":harga_beli", $data['harga_beli'], PDO::PARAM_STR);  
-            $statement->bindParam(":stok", $data['stok'], PDO::PARAM_INT);  
-            $statement->bindParam(":deskripsi", $data['deskripsi'], PDO::PARAM_STR);  
-            $statement->bindParam(":kategori", $data['kategori'], PDO::PARAM_STR);  
-
-            if ($statement->execute()) {  
-                return true;  
+    public function updateTables() {  
+        // Mendefinisikan query untuk memperbarui tabel  
+        $queries = [  
+            // Contoh penambahan kolom baru pada tabel produk  
+            "ALTER TABLE produk ADD COLUMN IF NOT EXISTS kode_produk VARCHAR(100) UNIQUE AFTER id;",  
+            
+            // Contoh perubahan tipe data kolom harga_jual  
+            "ALTER TABLE produk MODIFY COLUMN harga_jual DECIMAL(12, 2) NOT NULL;",  
+            
+            // Contoh penambahan kolom pada tabel produk_digital  
+            "ALTER TABLE produk_digital ADD COLUMN IF NOT EXISTS tanggal_rilis DATE AFTER kapasitas;",  
+            
+            // Tambahkan lagi perintah ALTER TABLE sesuai kebutuhan Anda  
+        ];  
+    
+        foreach ($queries as $query) {  
+            try {  
+                // Menjalankan setiap query  
+                $this->connection->exec($query);  
+                error_log("Update executed successfully: " . $query);  
+            } catch (PDOException $e) {  
+                error_log("Error updating table: " . $e->getMessage());  
             }  
-        } catch (PDOException $e) {  
-            error_log("Update Error: " . $e->getMessage());  
         }  
-
-        return false;  
     }  
 }
