@@ -2,8 +2,10 @@
 
 require_once "BaseProduk.php";   
 require_once "Supplier.php";   
+require_once "ProdukInterface.php"; 
+require_once "SupplierManagementInterface.php"; 
 
-class Produk extends BaseProduk {  
+class Produk extends BaseProduk implements ProdukInterface, SupplierManagementInterface {  
     public $suppliers = [];  
 
     public function addSupplier(Supplier $supplier): void {  
