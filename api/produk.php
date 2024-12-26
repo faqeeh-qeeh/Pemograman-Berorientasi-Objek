@@ -103,17 +103,43 @@ switch ($request) {
         break;
 
 
-    case 'PUT':
-        $id = $_GET['id'];  // Ambil ID dari parameter URL  
-        $data = json_decode(file_get_contents("php://input"), true);  // Ambil data JSON dari body permintaan  
-        if ($database->updateTables($id, $data)) {  
-            echo json_encode(["message" => "Produk berhasil diperbarui."]);  
-        } else {  
-        echo json_encode(["message" => "Gagal memperbarui produk."]);  
-        }  
-    break;
-
-    default:
-        sendResponse(405, ["message" => "Method not allowed."]);
-        break;
+        case 'PUT':  
+            $data = json_decode(file_get_contents("php://input"), true);  
+            
+            if (!isset($data['id'], $data['nama_produk'], $data['harga_jual'], $data['harga_beli'], $data['stok'], $data['deskripsi'], $data['kategori'])) {  
+                sendResponse(400, ["status" => "error", "message" => "Data tidak lengkap."]);  
+                break;  
+            }  
+        
+            $kategori = $data['kategori'];  
+            $produk = null;  
+        
+            // Inisialisasi objek produk berdasarkan kategori  
+            if ($kategori === "Alat Tulis") {  
+                $produk = new ProdukAlatTulis($db);  
+            } elseif ($kategori === "Jasa") {  
+                $produk = new ProdukJasa($db);  
+            } elseif ($kategori === "Digital") {  
+                // Mempertimbangkan data formatFile dan kapasitas  
+                $produk = new ProdukDigital($db, $data['formatFile'] ?? '', $data['kapasitas'] ?? 0);  
+            } else {  
+                sendResponse(400, ["status" => "error", "message" => "Kategori tidak valid."]);  
+                break;  
+            }  
+        
+            // Atur ID dan atribut produk  
+            $produk->id = $data['id'];  
+            $produk->nama_produk = $data['nama_produk'];  
+            $produk->harga_jual = $data['harga_jual'];  
+            $produk->harga_beli = $data['harga_beli'];  
+            $produk->stok = $data['stok'];  
+            $produk->deskripsi = $data['deskripsi'];  
+        
+            // Memanggil metode update() untuk memperbarui data produk  
+            if ($produk->update()) {  
+                sendResponse(200, ["status" => "success", "message" => "Produk berhasil diperbarui."]);  
+            } else {  
+                sendResponse(500, ["status" => "error", "message" => "Gagal memperbarui produk."]);  
+            }  
+            break;
 }
