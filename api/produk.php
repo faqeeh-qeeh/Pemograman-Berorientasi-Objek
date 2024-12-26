@@ -9,6 +9,9 @@ require_once "../model/Produk.php";
 require_once "../model/ProdukSpesifik/ProdukAlatTulis.php";
 require_once "../model/ProdukSpesifik/ProdukJasa.php";
 require_once "../model/ProdukSpesifik/ProdukDigital.php";
+require_once "../model/PaymentMethod/Transaction.php";
+require_once "../model/PaymentMethod/VirtualAccountMoney/FixdVA.php";
+
 
 $database = new Database();
 $db = $database->getConnection();
@@ -102,6 +105,43 @@ switch ($request) {
         } else {
             sendResponse(500, ["status" => "error", "message" => "Gagal menambahkan produk."]);
         }
+        break;
+
+         // Mengambil data dari permintaan JSON  
+        $input = json_decode(file_get_contents("php://input"), true); 
+        if ($input) {  
+            // Menentukan jenis VA  
+            if ($input['vaType'] === 'fixed') {  
+                $va = new FixedVA($input['nomorVA']);  
+            } elseif ($input['vaType'] === 'dynamic' && isset($input['expiredDate'])) {  
+                $va = new DynamicVA($input['nomorVA'], $input['expiredDate']);  
+            } else {  
+                echo json_encode(['error' => 'Invalid VA type']);  
+                exit;  
+            }  
+
+            // Menentukan jenis kartu dan menciptakan objek yang sesuai  
+            if ($input['cardType'] === 'credit') {  
+                $bankCard = new CreditCard();  
+            } elseif ($input['cardType'] === 'debit') {  
+                $bankCard = new DebitCard();  
+            } else {  
+                echo json_encode(['error' => 'Invalid card type']);  
+                exit;  
+            }  
+
+            // Membuat dan mengeksekusi transaksi  
+            $transaction = new Transaction($va, $bankCard, $input['total']);  
+            $transactionDetails = $transaction->executeTransaction();  
+
+            echo json_encode(['message' => 'Transaction successful', 'transactionDetails' => $transactionDetails]);  
+        } else {  
+            echo json_encode(['error' => 'No input received']);  
+        }  
+        break;  
+
+    default:  
+        echo json_encode(['error' => 'Method not allowed']);  
         break;
 
 
