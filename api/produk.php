@@ -184,4 +184,33 @@ switch ($request) {
                 sendResponse(500, ["status" => "error", "message" => "Gagal memperbarui produk."]);  
             }  
             break;
+
+
+
+
+            case 'DELETE':
+                if (empty($_GET['id'])) {
+                    sendResponse(400, ["status" => "error", "message" => "ID produk diperlukan untuk menghapus."]);
+                    break;
+                }
+            
+                $id = $_GET['id'];
+            
+                if (!validateId($id)) {
+                    sendResponse(400, ["status" => "error", "message" => "ID tidak valid."]);
+                    break;
+                }
+            
+                $produk = new Produk($db);
+                $produk->id = $id;
+            
+                if ($produk->delete()) {
+                    sendResponse(200, ["status" => "success", "message" => "Produk berhasil dihapus."]);
+                } else {
+                    sendResponse(500, ["status" => "error", "message" => "Gagal menghapus produk. Produk mungkin tidak ditemukan."]);
+                }
+                break;
 }
+
+
+
