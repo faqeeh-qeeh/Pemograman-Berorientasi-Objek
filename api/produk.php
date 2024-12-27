@@ -10,7 +10,7 @@ require_once "../model/ProdukSpesifik/ProdukAlatTulis.php";
 require_once "../model/ProdukSpesifik/ProdukJasa.php";
 require_once "../model/ProdukSpesifik/ProdukDigital.php";
 require_once "../model/PaymentMethod/Transaction.php";
-require_once "../model/PaymentMethod/VirtualAccountMoney/FixdVA.php";
+require_once "../model/PaymentMethod/VirtualAccountMoney/FixedVA.php";
 
 
 $database = new Database();
