@@ -1,18 +1,17 @@
-<?php  
-abstract class VA {  
-    protected $nomorVA;  
-    protected $penggunaan;  
+<?php
+abstract class VA {
+    protected $nomorVA;
+    protected $penggunaan;
 
-    public function __construct($nomorVA) {  
-        $this->nomorVA = $nomorVA;  
-    }  
+    public function __construct($nomorVA) {
+        $this->nomorVA = $nomorVA;
+    }
 
-    public function getNomorVA() {  
-        return $this->nomorVA;  
-    }  
+    public function getNomorVA() {
+        return $this->nomorVA;
+    }
 
-    public function getPenggunaan() {  
-        return $this->penggunaan;  
-    }  
-}  
-?>
+    public function getPenggunaan() {
+        return $this->penggunaan;
+    }
+}

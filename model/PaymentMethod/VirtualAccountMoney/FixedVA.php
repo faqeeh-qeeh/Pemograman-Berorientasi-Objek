@@ -1,17 +1,13 @@
 <?php  
 include_once "VA.php";  
 
-class DynamicVA extends VA {  
-    private $expiredDate;  
+class FixedVA extends VA {
+    public function __construct($nomorVA) {
+        parent::__construct($nomorVA);
+        $this->penggunaan = "Sekali pakai";
+    }
 
-    public function __construct($nomorVA, $expiredDate) {  
-        parent::__construct($nomorVA);  
-        $this->penggunaan = "Sekali pakai";  
-        $this->expiredDate = $expiredDate;  
-    }  
-
-    public function getBatasWaktu() {  
-        return "Batas waktu: " . $this->expiredDate;  
-    }  
-}  
-?>
+    public function getBatasWaktu() {
+        return "Tidak ada batas waktu untuk Fixed VA.";
+    }
+}

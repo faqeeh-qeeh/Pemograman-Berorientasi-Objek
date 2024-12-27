@@ -89,4 +89,18 @@ class Produk extends BaseProduk implements ProdukInterface, SupplierManagementIn
         // Eksekusi query  
         return $statement->execute();  
     }  
+
+
+    public function delete(): bool {
+        $query = "DELETE FROM {$this->tableName} WHERE id = :id";
+    
+        $statement = $this->connection->prepare($query);
+    
+        // Binding parameter
+        $statement->bindParam(":id", $this->id);
+    
+        // Eksekusi query
+        return $statement->execute();
+    }
+    
 }
