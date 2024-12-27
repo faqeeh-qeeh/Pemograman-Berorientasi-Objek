@@ -210,6 +210,8 @@ switch ($request) {
                     sendResponse(500, ["status" => "error", "message" => "Gagal menghapus produk. Produk mungkin tidak ditemukan."]);
                 }
                 break;
+
+                
 }
 
 
